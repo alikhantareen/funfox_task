@@ -1,6 +1,46 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useRef, useEffect, useState } from "react";
 
 const Signup = () => {
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const email = useRef(null);
+  const user_name = useRef(null);
+  const password = useRef(null);
+  function signup() {
+    if (
+      !email.current.value ||
+      !user_name.current.value ||
+      !password.current.value
+    ) {
+      setError("Please fill out all the fields!");
+      return;
+    }
+    fetch("http://localhost:5050/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: email.current.value, username: user_name.current.value ,password: password.current.value }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.message !== "User created Successfully") {
+          setError(data.message);
+          return;
+        }
+        if (data.message === "User created Successfully") {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", data.user.email);
+          localStorage.setItem("user_id", data.user._id);
+          localStorage.setItem("username", data.user.username);
+          navigate(`/home/${localStorage.getItem("user_id")}`)
+        }
+      });
+  }
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate(`/home/${localStorage.getItem("user_id")}`);
+    }
+  }, []);
   return (
     <>
       <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
@@ -10,13 +50,18 @@ const Signup = () => {
             <div className="max-w-md mx-auto">
               <div>
                 <h1 className="text-2xl font-semibold">
-                  Signup with <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-orange-600 font-bold">FUNFOX</span>
+                  Signup with{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-orange-600 font-bold">
+                    FUNFOX
+                  </span>
                 </h1>
               </div>
               <div className="divide-y divide-gray-200">
                 <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
+                  <p className="text-red-600 text-center">{error}</p>
                   <div className="relative">
                     <input
+                      ref={email}
                       autocomplete="off"
                       id="email"
                       name="email"
@@ -33,6 +78,7 @@ const Signup = () => {
                   </div>
                   <div className="relative">
                     <input
+                      ref={user_name}
                       autocomplete="off"
                       id="username"
                       name="text"
@@ -49,6 +95,7 @@ const Signup = () => {
                   </div>
                   <div className="relative">
                     <input
+                      ref={password}
                       autocomplete="off"
                       id="password"
                       name="password"
@@ -64,7 +111,7 @@ const Signup = () => {
                     </label>
                   </div>
                   <div className="relative">
-                    <button className="btn btn-primary w-full">
+                    <button onClick={signup} className="btn btn-primary w-full">
                       Sign up
                     </button>
                   </div>

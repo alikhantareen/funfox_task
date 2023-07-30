@@ -1,6 +1,45 @@
-import { Link } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const email = useRef(null);
+  const password = useRef(null);
+
+  function login() {
+    if (!email.current.value || !password.current.value) {
+      setError("Please fill out all the fields!");
+      return;
+    }
+    fetch("http://localhost:5050/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email.current.value,
+        password: password.current.value,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", data.user.email);
+          localStorage.setItem("user_id", data.user._id);
+          localStorage.setItem("username", data.user.username);
+          navigate(`/home/${localStorage.getItem("user_id")}`);
+        } else {
+          setError("Username/Password invalid. Try again.");
+          return;
+        }
+      });
+  }
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+      navigate(`/home/${localStorage.getItem("user_id")}`);
+    }
+  }, []);
   return (
     <>
       <div className="min-h-screen bg-gray-100 py-6 flex flex-col justify-center sm:py-12">
@@ -10,13 +49,18 @@ const Login = () => {
             <div className="max-w-md mx-auto">
               <div>
                 <h1 className="text-2xl font-semibold">
-                  Login with <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-orange-600 font-bold">FUNFOX</span>
+                  Login with{" "}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-300 to-orange-600 font-bold">
+                    FUNFOX
+                  </span>
                 </h1>
               </div>
               <div className="divide-y divide-gray-200">
                 <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
+                  <p className="text-red-600 text-center">{error}</p>
                   <div className="relative">
                     <input
+                      ref={email}
                       autocomplete="off"
                       id="email"
                       name="email"
@@ -33,6 +77,7 @@ const Login = () => {
                   </div>
                   <div className="relative">
                     <input
+                      ref={password}
                       autocomplete="off"
                       id="password"
                       name="password"
@@ -48,7 +93,7 @@ const Login = () => {
                     </label>
                   </div>
                   <div className="relative">
-                    <button className="btn btn-primary w-full">
+                    <button onClick={login} className="btn btn-primary w-full">
                       Login
                     </button>
                   </div>
