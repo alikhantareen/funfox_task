@@ -13,6 +13,8 @@ const Home = () => {
     queryKey: ["products", id],
     queryFn: () => getGroup(id),
     refetchOnWindowFocus: false,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true
   });
   async function getGroup(id) {
     const res = await axios.get(`http://localhost:5050/home/${id}`);
@@ -40,7 +42,7 @@ const Home = () => {
 
   async function changeStatus(id) {
     const status = {
-      status: selectValue,
+      status: selectValue, 
     };
     const res = await axios.put(
       `http://localhost:5050/updatestatus/${id}`,
@@ -91,7 +93,7 @@ const Home = () => {
         <main className="w-screen h-screen flex justify-center items-start p-4">
           <section className="w-full md:w-10/12 p-4 flex flex-col gap-6">
             <div className="w-full flex justify-between items-center">
-              <p className="font-semibold text-2xl">{data.group[0].title}</p>
+              <p className="font-bold text-xl md:text-3xl">{data.group[0].title}</p>
               <Link to={`/addtask`} className="btn btn-primary">
                 Create a task
               </Link>
@@ -131,7 +133,7 @@ const Home = () => {
               </div>
             </div>
             {data.tasks.length === 0 ? (
-              <p>0 tasks pending</p>
+              <p>No pending task.</p>
             ) : (
               data.tasks.map((elem) => {
                 return (

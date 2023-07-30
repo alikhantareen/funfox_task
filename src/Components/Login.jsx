@@ -99,15 +99,6 @@ const Login = () => {
                       Login
                     </button>
                   </div>
-                  <div>
-                    <p>
-                      Don't have an account?{" "}
-                      <Link to={`/signup`} className="underline">
-                        Sign up
-                      </Link>{" "}
-                      instead.
-                    </p>
-                  </div>
                 </div>
               </div>
             </div>

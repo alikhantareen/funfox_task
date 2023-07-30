@@ -52,7 +52,7 @@ const AddTask = () => {
           to={`/home/${localStorage.getItem("user_id")}`}
           className="text-sm pl-2 leading-none underline"
         >
-          Back
+          ..Back
         </Link>
         <div
           className={`${showAlert ? "w-full flex justify-center" : "hidden"}`}
@@ -76,7 +76,7 @@ const AddTask = () => {
         </div>
         <div className="p-1 md:p-8 flex flex-col gap-4 rounded-md justify-center items-center">
           <div className="flex flex-col justify-center items-center gap-4 w-full md:w-1/2">
-            <p className="text-3xl font-semibold">Create a task</p>
+            <p className="text-xl md:text-3xl font-bold">Create a task</p>
             <p className="text-red-600 text-center">{error}</p>
             <input
               ref={title}

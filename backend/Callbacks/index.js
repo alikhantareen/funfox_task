@@ -147,5 +147,5 @@ module.exports = {
   login,
   createTask,
   deleteTask,
-  updateTaskStatus
+  updateTaskStatus,
 };
