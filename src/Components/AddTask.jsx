@@ -74,8 +74,8 @@ const AddTask = () => {
             <span>Task has been created!</span>
           </div>
         </div>
-        <div className="p-8 flex flex-col gap-4 rounded-md justify-center items-center">
-          <div className="flex flex-col justify-center items-center gap-4 w-1/2">
+        <div className="p-1 md:p-8 flex flex-col gap-4 rounded-md justify-center items-center">
+          <div className="flex flex-col justify-center items-center gap-4 w-full md:w-1/2">
             <p className="text-3xl font-semibold">Create a task</p>
             <p className="text-red-600 text-center">{error}</p>
             <input
