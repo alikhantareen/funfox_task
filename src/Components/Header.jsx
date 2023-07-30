@@ -43,9 +43,7 @@ const Header = () => {
               {authenticated ? (
                 <>
                   <li>
-                    <Link to={`/home/${localStorage.getItem("user_id")}`}>
-                      <p className="justify-between">Profile</p>
-                    </Link>
+                      <p className="justify-between">{localStorage.getItem("username")}</p>
                   </li>
                   <li>
                     <a onClick={logout}>Logout</a>

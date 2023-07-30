@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useRef, useEffect, useState } from "react";
+import axios from "axios";
 
 const Signup = () => {
   const [error, setError] = useState("");
@@ -7,7 +8,8 @@ const Signup = () => {
   const email = useRef(null);
   const user_name = useRef(null);
   const password = useRef(null);
-  function signup() {
+  
+  async function signup() {
     if (
       !email.current.value ||
       !user_name.current.value ||
@@ -16,25 +18,30 @@ const Signup = () => {
       setError("Please fill out all the fields!");
       return;
     }
-    fetch("http://localhost:5050/signup", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: email.current.value, username: user_name.current.value ,password: password.current.value }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.message !== "User created Successfully") {
-          setError(data.message);
-          return;
-        }
-        if (data.message === "User created Successfully") {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", data.user.email);
-          localStorage.setItem("user_id", data.user._id);
-          localStorage.setItem("username", data.user.username);
-          navigate(`/home/${localStorage.getItem("user_id")}`)
-        }
-      });
+    try {
+      const url = "http://localhost:5050/signup";
+      const user_data = {
+        email: email.current.value,
+        username: user_name.current.value,
+        password: password.current.value,
+      };
+      const response = await axios.post(url, user_data);
+      const data = response.data;
+      if (data.message !== "User created Successfully") {
+        setError(data.message);
+        return;
+      }
+      else {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", data.user.email);
+        localStorage.setItem("user_id", data.user._id);
+        localStorage.setItem("username", data.user.username);
+        navigate(`/home/${localStorage.getItem("user_id")}`);
+      }
+    } catch (error) {
+      setError(error);
+      return;
+    }
   }
   useEffect(() => {
     if (localStorage.getItem("token")) {

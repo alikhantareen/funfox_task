@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const Login = () => {
   const [error, setError] = useState("");
@@ -7,32 +8,33 @@ const Login = () => {
   const email = useRef(null);
   const password = useRef(null);
 
-  function login() {
+  async function login() {
     if (!email.current.value || !password.current.value) {
       setError("Please fill out all the fields!");
       return;
     }
-    fetch("http://localhost:5050/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    try {
+      const url = "http://localhost:5050/login";
+      const user_data = {
         email: email.current.value,
         password: password.current.value,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.token) {
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", data.user.email);
-          localStorage.setItem("user_id", data.user._id);
-          localStorage.setItem("username", data.user.username);
-          navigate(`/home/${localStorage.getItem("user_id")}`);
-        } else {
-          setError("Username/Password invalid. Try again.");
-          return;
-        }
-      });
+      };
+      const response = await axios.post(url, user_data);
+      const data = response.data;
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", data.user.email);
+        localStorage.setItem("user_id", data.user._id);
+        localStorage.setItem("username", data.user.username);
+        navigate(`/home/${localStorage.getItem("user_id")}`);
+      } else {
+        setError("Username/Password invalid. Try again.");
+        return;
+      }
+    } catch (error) {
+      setError("Username/Password invalid. Try again.");
+      return;
+    }
   }
 
   useEffect(() => {

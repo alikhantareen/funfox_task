@@ -4,9 +4,45 @@ const Group = require("../Models/Group");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-function getHomePage(req, res) {
-  const { id } = req.params;
-  return res.status(200).json({ message: id });
+async function getHomePage(req, res) {
+  try {
+    const { id } = req.params;
+    const group_details = await Group.find({ users: id });
+    const tasks = await Task.find({ group: group_details[0]._id });
+    return res.status(200).json({
+      group: group_details,
+      tasks: tasks,
+    });
+  } catch (error) {
+    return res.status(500).json({ message: false });
+  }
+}
+
+async function createTask(req, res) {
+  const token = req.body.token;
+  if (jwt.verify(token, process.env.JWT_SECRET)) {
+    try {
+      const taskData = { ...req.body };
+      delete taskData.token;
+      const new_task = new Task(taskData);
+      const responsse = await new_task.save();
+      return res.status(200).json(responsse);
+    } catch (error) {
+      return res.status(500).json({ message: false });
+    }
+  } else {
+    return res.status(500).json({ error: "Unauthorized user request" });
+  }
+}
+
+async function deleteTask(req, res) {
+  try {
+    const { id } = req.params;
+    const task = await Task.deleteOne({ _id: id });
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    return res.status(500).json({ success: false });
+  }
 }
 
 async function signup(req, res) {
@@ -84,8 +120,32 @@ async function login(req, res) {
   }
 }
 
+async function updateTaskStatus(req, res) {
+  const taskId = req.params.id;
+  const { status } = req.body;
+  try {
+    const updatedTask = await Task.findByIdAndUpdate(
+      taskId,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedTask) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+    res.status(200).json(updatedTask);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error updating task status", error: error.message });
+  }
+}
+
 module.exports = {
   getHomePage,
   signup,
   login,
+  createTask,
+  deleteTask,
+  updateTaskStatus
 };
